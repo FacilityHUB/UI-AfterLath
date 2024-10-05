@@ -142,3 +142,5 @@ UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
 end)
 
 MainFrame.Visible = true -- Rendre l'interface visible au départ
+
+print("Ui Loaded By Individu Facility")
