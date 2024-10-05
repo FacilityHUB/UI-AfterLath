@@ -1,0 +1,124 @@
+-- Partie 1 : Gestion des Frames et des Toggles
+
+local CoreGui = game:GetService("CoreGui")
+local ScreenGui = Instance.new("ScreenGui")
+local UserInputService = game:GetService("UserInputService")
+
+-- Paramètres de l'interface
+ScreenGui.Parent = CoreGui
+ScreenGui.Name = "VisualsUI"
+
+-- Fonction pour mettre à jour la taille de la Frame
+local function updateFrameSize(frame, toggleOffset)
+    frame.Size = UDim2.new(0, 220, 0, 30 + toggleOffset + 10) -- Ajoute 10 pixels pour la marge en bas
+end
+
+-- Fonction pour créer une nouvelle Frame et gérer l'état
+local function CreateFrame(name, position, drag)
+    local NewFrame = Instance.new("Frame")
+    NewFrame.Size = UDim2.new(0, 220, 0, 150) -- Taille initiale de la Frame
+    NewFrame.Position = position
+    NewFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    NewFrame.BackgroundTransparency = 0.5
+    NewFrame.Parent = ScreenGui
+
+    -- Créer le TextLabel pour le titre
+    local TitleLabel = Instance.new("TextLabel")
+    TitleLabel.Size = UDim2.new(1, 0, 0, 30) -- Hauteur fixe pour le TextLabel
+    TitleLabel.Position = UDim2.new(0, 0, 0, 0) -- Position en haut de la Frame
+    TitleLabel.Text = name -- Utilise le nom passé
+    TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TitleLabel.BackgroundTransparency = 1
+    TitleLabel.Parent = NewFrame
+
+    -- Fonction de drag pour déplacer la Frame
+    if drag then
+        local function makeFrameDraggable(frame)
+            local dragging
+            local dragInput
+            local dragStart
+            local startPos
+
+            local function update(input)
+                local delta = input.Position - dragStart
+                frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+            end
+
+            frame.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    dragging = true
+                    dragStart = input.Position
+                    startPos = frame.Position
+
+                    input.Changed:Connect(function()
+                        if input.UserInputState == Enum.UserInputState.End then
+                            dragging = false
+                        end
+                    end)
+                end
+            end)
+
+            frame.InputChanged:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseMovement then
+                    dragInput = input
+                end
+            end)
+
+            UserInputService.InputChanged:Connect(function(input)
+                if dragging and input == dragInput then
+                    update(input)
+                end
+            end)
+        end
+
+        makeFrameDraggable(NewFrame) -- Appliquer le drag à cette Frame
+    end
+
+    -- Retourner la Frame et un tableau d'état pour suivre les toggles
+    return NewFrame, {toggleOffset = 0} -- Utiliser une table pour l'état
+end
+
+-- Fonction pour ajouter des toggles à une Frame
+local function AddToggleToFrame(frame, state, options)
+    local ToggleFrame = Instance.new("Frame")
+    ToggleFrame.Size = UDim2.new(0, 200, 0, 30)
+    ToggleFrame.Position = UDim2.new(0, 10, 0, 40 + state.toggleOffset) -- Utilise l'offset de la table d'état
+    ToggleFrame.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+    ToggleFrame.Parent = frame
+
+    local ToggleLabel = Instance.new("TextLabel")
+    ToggleLabel.Size = UDim2.new(0.7, 0, 1, 0)
+    ToggleLabel.Position = UDim2.new(0, 0, 0, 0)
+    ToggleLabel.Text = options.Name
+    ToggleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    ToggleLabel.BackgroundTransparency = 1
+    ToggleLabel.Parent = ToggleFrame
+
+    local ToggleButton = Instance.new("TextButton")
+    ToggleButton.Size = UDim2.new(0.3, 0, 1, 0)
+    ToggleButton.Position = UDim2.new(0.7, 0, 0, 0)
+    ToggleButton.Text = "Off"
+    ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    ToggleButton.Parent = ToggleFrame
+
+    local isEnabled = false
+
+    ToggleButton.MouseButton1Click:Connect(function()
+        isEnabled = not isEnabled
+        ToggleButton.Text = isEnabled and "On" or "Off"
+        ToggleButton.BackgroundColor3 = isEnabled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+
+        if options.Callback then
+            options.Callback(isEnabled)
+        end
+    end)
+
+    state.toggleOffset = state.toggleOffset + ToggleFrame.Size.Y.Offset + 10 -- Met à jour l'offset de la table d'état
+    updateFrameSize(frame, state.toggleOffset) -- Met à jour la taille de la Frame principale
+end
+
+-- Exporter les fonctions pour utilisation dans la Partie 2
+return {
+    CreateFrame = CreateFrame,
+    AddToggleToFrame = AddToggleToFrame
+}
