@@ -1,101 +1,96 @@
--- UIManager.lua
-local UI = Instance.new("ScreenGui")
-local MainFrame = Instance.new("Frame")
-local UICorner = Instance.new("UICorner")
+local Players = game:GetService("Players")
 
-UI.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-MainFrame.Size = UDim2.new(0, 300, 0, 400)
-MainFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
-MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-UICorner.Parent = MainFrame
-MainFrame.Parent = UI
+-- Fonction pour créer l'UI
+local function CreateUI()
+    local UI = Instance.new("ScreenGui")
+    local MainFrame = Instance.new("Frame")
+    local UICorner = Instance.new("UICorner")
 
-local settings = {}  -- Table pour stocker les états des toggles et les inputs
+    UI.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+    MainFrame.Size = UDim2.new(0, 300, 0, 400)
+    MainFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
+    MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    UICorner.Parent = MainFrame
+    MainFrame.Parent = UI
 
--- Fonction pour créer une catégorie (tab)
-local function CreateTab(title, image)
-    local TabFrame = Instance.new("Frame")
-    TabFrame.Size = UDim2.new(1, 0, 1, 0)
-    TabFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    -- Fonction pour créer une catégorie (tab)
+    local function CreateTab(title, image)
+        local TabFrame = Instance.new("Frame")
+        TabFrame.Size = UDim2.new(1, 0, 1, 0)
+        TabFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 
-    local TabLabel = Instance.new("TextLabel")
-    TabLabel.Size = UDim2.new(1, 0, 0, 30)
-    TabLabel.Text = title
-    TabLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    TabLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    TabLabel.Parent = TabFrame
+        local TabLabel = Instance.new("TextLabel")
+        TabLabel.Size = UDim2.new(1, 0, 0, 30)
+        TabLabel.Text = title
+        TabLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        TabLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        TabLabel.Parent = TabFrame
 
-    TabFrame.Parent = MainFrame
+        TabFrame.Parent = MainFrame
 
-    return {
-        CreateToggle = function(params)
-            local ToggleFrame = Instance.new("Frame")
-            ToggleFrame.Size = UDim2.new(1, 0, 0, 30)
-            ToggleFrame.Position = UDim2.new(0, 0, 0, params.PosY)
-            ToggleFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-            ToggleFrame.Parent = TabFrame
+        return {
+            CreateToggle = function(params)
+                local ToggleFrame = Instance.new("Frame")
+                local ToggleLabel = Instance.new("TextLabel")
+                local ToggleButton = Instance.new("TextButton")
+                
+                ToggleFrame.Size = UDim2.new(1, 0, 0, 50)
+                ToggleFrame.Position = UDim2.new(0, params.PosX, 0, params.PosY + 30) -- Offset from Tab label
+                ToggleFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+                
+                ToggleLabel.Size = UDim2.new(0.8, 0, 1, 0)
+                ToggleLabel.Text = params.Name
+                ToggleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+                ToggleLabel.Parent = ToggleFrame
+                
+                ToggleButton.Size = UDim2.new(0.2, 0, 1, 0)
+                ToggleButton.Text = "Off"
+                ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+                
+                local isToggled = false
+                
+                ToggleButton.MouseButton1Click:Connect(function()
+                    isToggled = not isToggled
+                    ToggleButton.Text = isToggled and "On" or "Off"
+                    ToggleButton.BackgroundColor3 = isToggled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+                    params.Callback(isToggled)  -- Appelle la fonction de rappel
+                end)
+                
+                ToggleFrame.Parent = TabFrame
+                ToggleButton.Parent = ToggleFrame
+            end,
 
-            local ToggleLabel = Instance.new("TextLabel")
-            ToggleLabel.Size = UDim2.new(0.5, 0, 1, 0)
-            ToggleLabel.Text = params.Name
-            ToggleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-            ToggleLabel.Parent = ToggleFrame
-
-            local ToggleButton = Instance.new("TextButton")
-            ToggleButton.Size = UDim2.new(0.5, 0, 1, 0)
-            ToggleButton.Position = UDim2.new(0.5, 0, 0, 0)
-            ToggleButton.Text = "Off"
-            ToggleButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-            ToggleButton.Parent = ToggleFrame
-
-            ToggleButton.MouseButton1Click:Connect(function()
-                local isActive = settings[params.Flag] or false
-                isActive = not isActive
-                settings[params.Flag] = isActive
-                ToggleButton.Text = isActive and "On" or "Off"
-                ToggleButton.BackgroundColor3 = isActive and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(100, 100, 100)
-                params.Callback(isActive)
-            end)
-        end,
-
-        CreateInput = function(params)
-            local InputFrame = Instance.new("Frame")
-            InputFrame.Size = UDim2.new(1, 0, 0, 30)
-            InputFrame.Position = UDim2.new(0, 0, 0, params.PosY)
-            InputFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-            InputFrame.Parent = TabFrame
-
-            local InputLabel = Instance.new("TextLabel")
-            InputLabel.Size = UDim2.new(0.5, 0, 1, 0)
-            InputLabel.Text = params.Name
-            InputLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-            InputLabel.Parent = InputFrame
-
-            local InputBox = Instance.new("TextBox")
-            InputBox.Size = UDim2.new(0.5, 0, 1, 0)
-            InputBox.Position = UDim2.new(0.5, 0, 0, 0)
-            InputBox.PlaceholderText = params.PlaceholderText
-            InputBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            InputBox.Parent = InputFrame
-
-            InputBox.FocusLost:Connect(function(enterPressed)
-                if enterPressed then
-                    local text = InputBox.Text
-                    settings[params.Flag] = text
-                    params.Callback(text)
-                    if params.RemoveTextAfterFocusLost then
-                        InputBox.Text = ""
+            CreateInput = function(params)
+                local InputFrame = Instance.new("Frame")
+                local InputLabel = Instance.new("TextLabel")
+                local InputBox = Instance.new("TextBox")
+                
+                InputFrame.Size = UDim2.new(1, 0, 0, 50)
+                InputFrame.Position = UDim2.new(0, params.PosX, 0, params.PosY + 30) -- Offset from Tab label
+                InputFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+                
+                InputLabel.Size = UDim2.new(1, 0, 0, 20)
+                InputLabel.Text = params.Name
+                InputLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+                InputLabel.Parent = InputFrame
+                
+                InputBox.Size = UDim2.new(1, 0, 1, -20)
+                InputBox.Position = UDim2.new(0, 0, 0, 20)
+                InputBox.PlaceholderText = params.PlaceholderText
+                InputBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+                InputBox.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+                InputBox.ClearTextOnFocus = params.RemoveTextAfterFocusLost
+                
+                -- Connecte la fonction de rappel à l'événement de modification du texte
+                InputBox.Changed:Connect(function()
+                    if InputBox.Text ~= "" then
+                        params.Callback(InputBox.Text)  -- Appelle la fonction de rappel avec le texte actuel
                     end
-                end
-            end)
-        end
-    }
-end
-
--- Fonctionnalité de glissement et autres codes ici...
-
-print("UI Loaded By Individu Facility")
-return {
-    CreateTab = CreateTab -- Assurez-vous de retourner cette fonction
-}
-print("ciyciy")
+                end)
+                
+                InputFrame.Parent = TabFrame
+                InputBox.Parent = InputFrame
+            end
+        }
+    end
+print("UI Loaded By Lindividu Facility")
