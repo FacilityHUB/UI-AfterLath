@@ -30,117 +30,71 @@ local function CreateTab(title, image)
     return {
         CreateToggle = function(params)
             local ToggleFrame = Instance.new("Frame")
-            local ToggleLabel = Instance.new("TextLabel")
-            local ToggleButton = Instance.new("TextButton")
-            
-            ToggleFrame.Size = UDim2.new(1, 0, 0, 50)
-            ToggleFrame.Position = UDim2.new(0, params.PosX, 0, params.PosY + 30) -- Offset from Tab label
+            ToggleFrame.Size = UDim2.new(1, 0, 0, 30)
+            ToggleFrame.Position = UDim2.new(0, 0, 0, params.PosY)
             ToggleFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-            
-            ToggleLabel.Size = UDim2.new(0.8, 0, 1, 0)
+            ToggleFrame.Parent = TabFrame
+
+            local ToggleLabel = Instance.new("TextLabel")
+            ToggleLabel.Size = UDim2.new(0.5, 0, 1, 0)
             ToggleLabel.Text = params.Name
             ToggleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
             ToggleLabel.Parent = ToggleFrame
-            
-            ToggleButton.Size = UDim2.new(0.2, 0, 1, 0)
-            ToggleButton.Text = settings[params.Flag] and "On" or "Off"
-            ToggleButton.BackgroundColor3 = settings[params.Flag] and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-            
-            local isToggled = settings[params.Flag] or false
-            
-            ToggleButton.MouseButton1Click:Connect(function()
-                isToggled = not isToggled
-                ToggleButton.Text = isToggled and "On" or "Off"
-                ToggleButton.BackgroundColor3 = isToggled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-                settings[params.Flag] = isToggled  -- Sauvegarde l'état
-                params.Callback(isToggled)  -- Appelle la fonction de rappel
-            end)
-            
-            ToggleFrame.Parent = TabFrame
+
+            local ToggleButton = Instance.new("TextButton")
+            ToggleButton.Size = UDim2.new(0.5, 0, 1, 0)
+            ToggleButton.Position = UDim2.new(0.5, 0, 0, 0)
+            ToggleButton.Text = "Off"
+            ToggleButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
             ToggleButton.Parent = ToggleFrame
+
+            ToggleButton.MouseButton1Click:Connect(function()
+                local isActive = settings[params.Flag] or false
+                isActive = not isActive
+                settings[params.Flag] = isActive
+                ToggleButton.Text = isActive and "On" or "Off"
+                ToggleButton.BackgroundColor3 = isActive and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(100, 100, 100)
+                params.Callback(isActive)
+            end)
         end,
 
         CreateInput = function(params)
             local InputFrame = Instance.new("Frame")
-            local InputLabel = Instance.new("TextLabel")
-            local InputBox = Instance.new("TextBox")
-            
-            InputFrame.Size = UDim2.new(1, 0, 0, 50)
-            InputFrame.Position = UDim2.new(0, params.PosX, 0, params.PosY + 30) -- Offset from Tab label
+            InputFrame.Size = UDim2.new(1, 0, 0, 30)
+            InputFrame.Position = UDim2.new(0, 0, 0, params.PosY)
             InputFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-            
-            InputLabel.Size = UDim2.new(1, 0, 0, 20)
+            InputFrame.Parent = TabFrame
+
+            local InputLabel = Instance.new("TextLabel")
+            InputLabel.Size = UDim2.new(0.5, 0, 1, 0)
             InputLabel.Text = params.Name
             InputLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
             InputLabel.Parent = InputFrame
-            
-            InputBox.Size = UDim2.new(1, 0, 1, -20)
-            InputBox.Position = UDim2.new(0, 0, 0, 20)
-            InputBox.PlaceholderText = params.PlaceholderText
-            InputBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-            InputBox.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-            InputBox.ClearTextOnFocus = params.RemoveTextAfterFocusLost
-            InputBox.Text = settings[params.Flag] or ""  -- Récupère le texte sauvegardé
 
-            -- Connecte la fonction de rappel à l'événement de modification du texte
-            InputBox.Changed:Connect(function()
-                settings[params.Flag] = InputBox.Text  -- Sauvegarde le texte
-                if InputBox.Text ~= "" then
-                    params.Callback(InputBox.Text)  -- Appelle la fonction de rappel avec le texte actuel
+            local InputBox = Instance.new("TextBox")
+            InputBox.Size = UDim2.new(0.5, 0, 1, 0)
+            InputBox.Position = UDim2.new(0.5, 0, 0, 0)
+            InputBox.PlaceholderText = params.PlaceholderText
+            InputBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            InputBox.Parent = InputFrame
+
+            InputBox.FocusLost:Connect(function(enterPressed)
+                if enterPressed then
+                    local text = InputBox.Text
+                    settings[params.Flag] = text
+                    params.Callback(text)
+                    if params.RemoveTextAfterFocusLost then
+                        InputBox.Text = ""
+                    end
                 end
             end)
-            
-            InputFrame.Parent = TabFrame
-            InputBox.Parent = InputFrame
         end
     }
 end
 
--- Système de glissement pour le MainFrame
-local dragging
-local dragInput
-local dragStart
-local startPos
+-- Fonctionnalité de glissement et autres codes ici...
 
-local function updateInput(input)
-    local delta = input.Position - dragStart
-    MainFrame.Position = UDim2.new(
-        startPos.X.Scale,
-        startPos.X.Offset + delta.X,
-        startPos.Y.Scale,
-        startPos.Y.Offset + delta.Y
-    )
-end
-
-MainFrame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = MainFrame.Position
-
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
-end)
-
-MainFrame.InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        updateInput(input)
-    end
-end)
-
--- Fermer/Ouvrir l'UI avec Ctrl
-local UserInputService = game:GetService("UserInputService")
-
-UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
-    if not gameProcessedEvent and input.KeyCode == Enum.KeyCode.LeftControl then
-        MainFrame.Visible = not MainFrame.Visible
-    end
-end)
-
-MainFrame.Visible = true -- Rendre l'interface visible au départ
-
-print("Ui Loaded By Individu Facility")
+print("UI Loaded By Individu Facility")
+return {
+    CreateTab = CreateTab -- Assurez-vous de retourner cette fonction
+}
