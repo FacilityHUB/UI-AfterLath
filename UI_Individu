@@ -1,1 +1,144 @@
-Print("coucou")
+-- UIManager.lua
+local UI = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local UICorner = Instance.new("UICorner")
+
+UI.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+MainFrame.Size = UDim2.new(0, 300, 0, 400)
+MainFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+UICorner.Parent = MainFrame
+MainFrame.Parent = UI
+
+local settings = {}  -- Table pour stocker les états des toggles et les inputs
+
+-- Fonction pour créer une catégorie (tab)
+local function CreateTab(title, image)
+    local TabFrame = Instance.new("Frame")
+    TabFrame.Size = UDim2.new(1, 0, 1, 0)
+    TabFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+
+    local TabLabel = Instance.new("TextLabel")
+    TabLabel.Size = UDim2.new(1, 0, 0, 30)
+    TabLabel.Text = title
+    TabLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TabLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    TabLabel.Parent = TabFrame
+
+    TabFrame.Parent = MainFrame
+
+    return {
+        CreateToggle = function(params)
+            local ToggleFrame = Instance.new("Frame")
+            local ToggleLabel = Instance.new("TextLabel")
+            local ToggleButton = Instance.new("TextButton")
+            
+            ToggleFrame.Size = UDim2.new(1, 0, 0, 50)
+            ToggleFrame.Position = UDim2.new(0, params.PosX, 0, params.PosY + 30) -- Offset from Tab label
+            ToggleFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+            
+            ToggleLabel.Size = UDim2.new(0.8, 0, 1, 0)
+            ToggleLabel.Text = params.Name
+            ToggleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+            ToggleLabel.Parent = ToggleFrame
+            
+            ToggleButton.Size = UDim2.new(0.2, 0, 1, 0)
+            ToggleButton.Text = settings[params.Flag] and "On" or "Off"
+            ToggleButton.BackgroundColor3 = settings[params.Flag] and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+            
+            local isToggled = settings[params.Flag] or false
+            
+            ToggleButton.MouseButton1Click:Connect(function()
+                isToggled = not isToggled
+                ToggleButton.Text = isToggled and "On" or "Off"
+                ToggleButton.BackgroundColor3 = isToggled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+                settings[params.Flag] = isToggled  -- Sauvegarde l'état
+                params.Callback(isToggled)  -- Appelle la fonction de rappel
+            end)
+            
+            ToggleFrame.Parent = TabFrame
+            ToggleButton.Parent = ToggleFrame
+        end,
+
+        CreateInput = function(params)
+            local InputFrame = Instance.new("Frame")
+            local InputLabel = Instance.new("TextLabel")
+            local InputBox = Instance.new("TextBox")
+            
+            InputFrame.Size = UDim2.new(1, 0, 0, 50)
+            InputFrame.Position = UDim2.new(0, params.PosX, 0, params.PosY + 30) -- Offset from Tab label
+            InputFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+            
+            InputLabel.Size = UDim2.new(1, 0, 0, 20)
+            InputLabel.Text = params.Name
+            InputLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+            InputLabel.Parent = InputFrame
+            
+            InputBox.Size = UDim2.new(1, 0, 1, -20)
+            InputBox.Position = UDim2.new(0, 0, 0, 20)
+            InputBox.PlaceholderText = params.PlaceholderText
+            InputBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+            InputBox.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+            InputBox.ClearTextOnFocus = params.RemoveTextAfterFocusLost
+            InputBox.Text = settings[params.Flag] or ""  -- Récupère le texte sauvegardé
+
+            -- Connecte la fonction de rappel à l'événement de modification du texte
+            InputBox.Changed:Connect(function()
+                settings[params.Flag] = InputBox.Text  -- Sauvegarde le texte
+                if InputBox.Text ~= "" then
+                    params.Callback(InputBox.Text)  -- Appelle la fonction de rappel avec le texte actuel
+                end
+            end)
+            
+            InputFrame.Parent = TabFrame
+            InputBox.Parent = InputFrame
+        end
+    }
+end
+
+-- Système de glissement pour le MainFrame
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+local function updateInput(input)
+    local delta = input.Position - dragStart
+    MainFrame.Position = UDim2.new(
+        startPos.X.Scale,
+        startPos.X.Offset + delta.X,
+        startPos.Y.Scale,
+        startPos.Y.Offset + delta.Y
+    )
+end
+
+MainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+MainFrame.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        updateInput(input)
+    end
+end)
+
+-- Fermer/Ouvrir l'UI avec Ctrl
+local UserInputService = game:GetService("UserInputService")
+
+UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+    if not gameProcessedEvent and input.KeyCode == Enum.KeyCode.LeftControl then
+        MainFrame.Visible = not MainFrame.Visible
+    end
+end)
+
+MainFrame.Visible = true -- Rendre l'interface visible au départ
