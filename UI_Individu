@@ -1,6 +1,5 @@
 local Players = game:GetService("Players")
 
--- Fonction pour créer l'UI
 local function CreateUI()
     local UI = Instance.new("ScreenGui")
     local MainFrame = Instance.new("Frame")
@@ -13,8 +12,7 @@ local function CreateUI()
     UICorner.Parent = MainFrame
     MainFrame.Parent = UI
 
-    -- Fonction pour créer une catégorie (tab)
-    local function CreateTab(title, image)
+    local function CreateTab(title)
         local TabFrame = Instance.new("Frame")
         TabFrame.Size = UDim2.new(1, 0, 1, 0)
         TabFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
@@ -33,29 +31,29 @@ local function CreateUI()
                 local ToggleFrame = Instance.new("Frame")
                 local ToggleLabel = Instance.new("TextLabel")
                 local ToggleButton = Instance.new("TextButton")
-                
+
                 ToggleFrame.Size = UDim2.new(1, 0, 0, 50)
-                ToggleFrame.Position = UDim2.new(0, params.PosX, 0, params.PosY + 30) -- Offset from Tab label
+                ToggleFrame.Position = UDim2.new(0, params.PosX, 0, params.PosY + 30)
                 ToggleFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-                
+
                 ToggleLabel.Size = UDim2.new(0.8, 0, 1, 0)
                 ToggleLabel.Text = params.Name
                 ToggleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
                 ToggleLabel.Parent = ToggleFrame
-                
+
                 ToggleButton.Size = UDim2.new(0.2, 0, 1, 0)
                 ToggleButton.Text = "Off"
                 ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-                
+
                 local isToggled = false
-                
+
                 ToggleButton.MouseButton1Click:Connect(function()
                     isToggled = not isToggled
                     ToggleButton.Text = isToggled and "On" or "Off"
                     ToggleButton.BackgroundColor3 = isToggled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-                    params.Callback(isToggled)  -- Appelle la fonction de rappel
+                    params.Callback(isToggled)
                 end)
-                
+
                 ToggleFrame.Parent = TabFrame
                 ToggleButton.Parent = ToggleFrame
             end,
@@ -64,33 +62,41 @@ local function CreateUI()
                 local InputFrame = Instance.new("Frame")
                 local InputLabel = Instance.new("TextLabel")
                 local InputBox = Instance.new("TextBox")
-                
+
                 InputFrame.Size = UDim2.new(1, 0, 0, 50)
-                InputFrame.Position = UDim2.new(0, params.PosX, 0, params.PosY + 30) -- Offset from Tab label
+                InputFrame.Position = UDim2.new(0, params.PosX, 0, params.PosY + 30)
                 InputFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-                
+
                 InputLabel.Size = UDim2.new(1, 0, 0, 20)
                 InputLabel.Text = params.Name
                 InputLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
                 InputLabel.Parent = InputFrame
-                
+
                 InputBox.Size = UDim2.new(1, 0, 1, -20)
                 InputBox.Position = UDim2.new(0, 0, 0, 20)
                 InputBox.PlaceholderText = params.PlaceholderText
                 InputBox.TextColor3 = Color3.fromRGB(255, 255, 255)
                 InputBox.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
                 InputBox.ClearTextOnFocus = params.RemoveTextAfterFocusLost
-                
-                -- Connecte la fonction de rappel à l'événement de modification du texte
+
                 InputBox.Changed:Connect(function()
                     if InputBox.Text ~= "" then
-                        params.Callback(InputBox.Text)  -- Appelle la fonction de rappel avec le texte actuel
+                        params.Callback(InputBox.Text)
                     end
                 end)
-                
+
                 InputFrame.Parent = TabFrame
                 InputBox.Parent = InputFrame
             end
         }
     end
-print("UI Loaded By Lindividu Facility")
+
+    local Tab1 = CreateTab("Tab Example")
+
+    return {
+        CreateTab = CreateTab,
+        MainFrame = MainFrame
+    }
+end
+
+return CreateUI
