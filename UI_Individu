@@ -13,15 +13,20 @@ local function CreateUI()
     UICorner.Parent = MainFrame
     MainFrame.Parent = UI
 
+    -- Set the UI to be visible initially
+    MainFrame.Visible = true
+
     -- Function to toggle UI visibility
     local function toggleUI()
         MainFrame.Visible = not MainFrame.Visible
     end
 
     -- Detect when the player presses the Ctrl key
-    UIS.InputBegan:Connect(function(input)
-        if input.KeyCode == Enum.KeyCode.LeftControl or input.KeyCode == Enum.KeyCode.RightControl then
-            toggleUI()
+    UIS.InputBegan:Connect(function(input, gameProcessed)
+        if not gameProcessed then
+            if input.KeyCode == Enum.KeyCode.LeftControl or input.KeyCode == Enum.KeyCode.RightControl then
+                toggleUI()
+            end
         end
     end)
 
