@@ -1,4 +1,5 @@
 local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
 
 local function CreateUI()
     local UI = Instance.new("ScreenGui")
@@ -11,6 +12,18 @@ local function CreateUI()
     MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     UICorner.Parent = MainFrame
     MainFrame.Parent = UI
+
+    -- Function to toggle UI visibility
+    local function toggleUI()
+        MainFrame.Visible = not MainFrame.Visible
+    end
+
+    -- Detect when the player presses the Ctrl key
+    UIS.InputBegan:Connect(function(input)
+        if input.KeyCode == Enum.KeyCode.LeftControl or input.KeyCode == Enum.KeyCode.RightControl then
+            toggleUI()
+        end
+    end)
 
     local function CreateTab(title)
         local TabFrame = Instance.new("Frame")
@@ -100,5 +113,3 @@ local function CreateUI()
 end
 
 return CreateUI
-
-print("coucuo")
