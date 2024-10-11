@@ -196,6 +196,7 @@ local function CreateTab(title)
 	listLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	listLayout.Padding = UDim.new(0, 10)
 
+	-- Define CreateToggle method
 	return {
 		ButtonContainer = ButtonContainer,
 		TabFrame = TabFrame,
@@ -245,5 +246,6 @@ local function CreateTab(title)
 		end
 	}
 end
+
 
 Element.Visible = true -- Show the first tab by default
