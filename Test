@@ -1,0 +1,249 @@
+local CoreGui = game:GetService("CoreGui")
+local ScreenGui = Instance.new("ScreenGui")
+local UserInputService = game:GetService("UserInputService")
+
+ScreenGui.Parent = CoreGui
+ScreenGui.Name = "Facility"
+
+local Container = Instance.new("Frame")
+Container.Name = "Container"
+Container.Size = UDim2.new(0.35, 0, 0.40, 0)
+Container.Position = UDim2.new(0.3, 0, 0.39, 0)
+Container.BackgroundColor3 = Color3.fromRGB(29, 29, 29)
+Container.BackgroundTransparency = 1
+Container.Parent = ScreenGui
+
+local NavBar = Instance.new("Frame")
+NavBar.Name = "NavBar"
+NavBar.Size = UDim2.new(0.24, 0, 0.8, 0)
+NavBar.BackgroundColor3 = Color3.fromRGB(29, 29, 29)
+NavBar.Position = UDim2.new(0, 0, 0, 0)
+NavBar.Parent = Container
+
+local NavBarCorner = Instance.new("UICorner")
+NavBarCorner.Parent = NavBar
+
+local NavStroke = Instance.new("UIStroke")
+NavStroke.Color = Color3.fromRGB(18, 29, 232)
+NavStroke.Thickness = 1
+NavStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+NavStroke.Parent = NavBar
+
+local layout = Instance.new("UIListLayout")
+layout.Parent = NavBar
+layout.Padding = UDim.new(0, 10)
+layout.HorizontalAlignment = "Center"
+
+local EnHaut = Instance.new("Frame")
+EnHaut.Name = "EnHaut"
+EnHaut.Size = UDim2.new(1, 0, 0.1, 0)
+EnHaut.BackgroundColor3 = Color3.fromRGB(29, 29, 29)
+EnHaut.Position = UDim2.new(0, 0, 0, -50)
+EnHaut.Parent = Container
+
+local EnHautCorner = Instance.new("UICorner")
+EnHautCorner.Parent = EnHaut
+
+local HautStroke = Instance.new("UIStroke")
+HautStroke.Color = Color3.fromRGB(18, 29, 232)
+HautStroke.Thickness = 1
+HautStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+HautStroke.Parent = EnHaut
+
+local TitleScript = Instance.new("TextLabel")
+TitleScript.Name = "Title"
+TitleScript.Text = "Facility HUB"
+TitleScript.Size = UDim2.new(0, 150, 0, 25)
+TitleScript.TextColor3 = Color3.fromRGB(141, 141, 141)
+TitleScript.BackgroundTransparency = 1
+TitleScript.Font = Enum.Font.SourceSansBold
+TitleScript.TextXAlignment = Enum.TextXAlignment.Left
+TitleScript.TextScaled = true
+TitleScript.Position = UDim2.new(0, 10, 0, 8)
+
+TitleScript.Parent = EnHaut
+
+local dragging = false
+local dragStart = nil
+local startPos = nil
+
+local function updateInput(input)
+	local delta = input.Position - dragStart
+	Container.Position =
+		UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+EnHaut.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = Container.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		updateInput(input)
+	end
+end)
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0.75, 0, 0.8, 0)
+MainFrame.Position = UDim2.new(0, 168, 0, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(29, 29, 29)
+MainFrame.Parent = Container
+
+local MainFrameCorner = Instance.new("UICorner")
+MainFrameCorner.Parent = MainFrame
+
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Color = Color3.fromRGB(18, 29, 232)
+MainStroke.Thickness = 1
+MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+MainStroke.Parent = MainFrame
+
+local Element = Instance.new("Frame")
+Element.Name = "Element"
+Element.Size = UDim2.new(1, 0, 1, 0)
+Element.Position = UDim2.new(0, 0, 0, 0)
+Element.BackgroundColor3 = Color3.fromRGB(29, 29, 29)
+Element.Parent = MainFrame
+
+local ElementCorner = Instance.new("UICorner")
+ElementCorner.Parent = Element
+
+local UIIndividu = {}
+
+local function CreateTab(title)
+	local ButtonContainer = Instance.new("Frame")
+	ButtonContainer.Name = title
+	ButtonContainer.Size = UDim2.new(0, 125, 0, 30)
+	ButtonContainer.BackgroundColor3 = Color3.fromRGB(29, 29, 29)
+	ButtonContainer.BackgroundTransparency = 1
+	ButtonContainer.Position = UDim2.new(0.05 + (#NavBar:GetChildren() - 1) * 0.22, 0, 0.1, 0)
+	ButtonContainer.Parent = NavBar
+
+	local ContainerCorner = Instance.new("UICorner")
+	ContainerCorner.Parent = ButtonContainer
+
+	local Button = Instance.new("TextButton")
+	Button.Size = UDim2.new(1, 0, 0, 35)
+	Button.Position = UDim2.new(0, 0, 0, 10)
+	Button.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+	Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Button.Text = title
+	Button.Parent = ButtonContainer
+
+	local ButtonCorner = Instance.new("UICorner")
+	ButtonCorner.Parent = Button
+
+	local ButtonStroke = Instance.new("UIStroke")
+	ButtonStroke.Color = Color3.fromRGB(18, 29, 232)
+	ButtonStroke.Thickness = 1
+	ButtonStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	ButtonStroke.Parent = Button
+
+	Button.MouseButton1Click:Connect(function()
+		print(title .. " clicked!")
+		for _, child in ipairs(Element:GetChildren()) do
+			if child:IsA("ScrollingFrame") then
+				child.Visible = false
+			end
+		end
+
+		local correspondingFrame = Element:FindFirstChild(title)
+		if correspondingFrame then
+			correspondingFrame.Visible = true
+		end
+	end)
+
+	local TabFrame = Instance.new("ScrollingFrame")
+	TabFrame.Name = title
+	TabFrame.Size = UDim2.new(0.95, 0, 0.95, 0)
+	TabFrame.Position = UDim2.new(0.025, 0, 0.025, 0)
+	TabFrame.BackgroundTransparency = 1
+	TabFrame.BackgroundColor3 = Color3.fromRGB(29, 29, 29)
+	TabFrame.Visible = false
+	TabFrame.Parent = Element
+
+	TabFrame.ScrollBarThickness = 10
+	TabFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+	TabFrame.ScrollingDirection = Enum.ScrollingDirection.Y
+	TabFrame.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+
+	local TabFrameCorner = Instance.new("UICorner")
+	TabFrameCorner.Parent = TabFrame
+
+	local uiPadding = Instance.new("UIPadding")
+	uiPadding.PaddingTop = UDim.new(0, 10)
+	uiPadding.PaddingLeft = UDim.new(0, 10)
+	uiPadding.PaddingRight = UDim.new(0, 10)
+	uiPadding.PaddingBottom = UDim.new(0, 10)
+	uiPadding.Parent = TabFrame
+
+	local listLayout = Instance.new("UIListLayout")
+	listLayout.Parent = TabFrame
+	listLayout.FillDirection = Enum.FillDirection.Vertical
+	listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	listLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+	listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	listLayout.Padding = UDim.new(0, 10)
+
+	return {
+		ButtonContainer = ButtonContainer,
+		TabFrame = TabFrame,
+		CreateToggle = function(toggleOptions)
+			local ToggleFrame = Instance.new("Frame")
+			ToggleFrame.Name = "Toggle"
+			ToggleFrame.Position = UDim2.new(0, 2, 0, 5)
+			ToggleFrame.Size = UDim2.new(0.99, 0, 0, 40)
+			ToggleFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+			ToggleFrame.Parent = TabFrame
+
+			local ToggleCorner = Instance.new("UICorner")
+			ToggleCorner.Parent = ToggleFrame
+
+			local ButtonStroke = Instance.new("UIStroke")
+			ButtonStroke.Color = Color3.fromRGB(18, 29, 232)
+			ButtonStroke.Thickness = 1
+			ButtonStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+			ButtonStroke.Parent = ToggleFrame
+
+			local ToggleLabel = Instance.new("TextLabel")
+			ToggleLabel.Size = UDim2.new(0.8, 0, 1, 0)
+			ToggleLabel.Text = toggleOptions.text
+			ToggleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+			ToggleLabel.BackgroundTransparency = 1
+			ToggleLabel.Parent = ToggleFrame
+
+			local ToggleButton = Instance.new("TextButton")
+			ToggleButton.Size = UDim2.new(0.2, 0, 1, 0)
+			ToggleButton.Position = UDim2.new(0.8, 0, 0, 0)
+			ToggleButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+			ToggleButton.Text = toggleOptions.default and "On" or "Off"
+			ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+			ToggleButton.Parent = ToggleFrame
+
+			ToggleButton.MouseButton1Click:Connect(function()
+				toggleOptions.default = not toggleOptions.default
+				ToggleButton.Text = toggleOptions.default and "On" or "Off"
+				print(toggleOptions.text .. " is now " .. (toggleOptions.default and "enabled" or "disabled"))
+			end)
+
+			local function addToCanvasSize()
+				local currentSize = TabFrame.CanvasSize
+				TabFrame.CanvasSize = UDim2.new(currentSize.X.Scale, currentSize.X.Offset, currentSize.Y.Scale, currentSize.Y.Offset + 40)
+			end
+			addToCanvasSize()
+		end
+	}
+end
+
+Element.Visible = true -- Show the first tab by default
