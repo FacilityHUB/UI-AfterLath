@@ -1,0 +1,139 @@
+local CoreGui = game:GetService("CoreGui")
+local ScreenGui = Instance.new("ScreenGui")
+local UserInputService = game:GetService("UserInputService")
+
+ScreenGui.Parent = CoreGui
+ScreenGui.Name = "Facility"
+
+local Container = Instance.new("Frame")
+Container.Name = "Container"
+Container.Size = UDim2.new(0.35, 0, 0.40, 0)
+Container.Position = UDim2.new(0.3, 0, 0.39, 0)
+Container.BackgroundColor3 = Color3.fromRGB(29, 29, 29)
+Container.BackgroundTransparency = 1
+Container.Parent = ScreenGui
+
+local NavBar = Instance.new("Frame")
+NavBar.Name = "NavBar"
+NavBar.Size = UDim2.new(0.24, 0, 0.8, 0)
+NavBar.BackgroundColor3 = Color3.fromRGB(29, 29, 29)
+NavBar.Position = UDim2.new(0, 0, 0, 0)
+NavBar.Parent = Container
+
+local NavBarCorner = Instance.new("UICorner")
+NavBarCorner.Parent = NavBar
+
+local NavStroke = Instance.new("UIStroke")
+NavStroke.Color = Color3.fromRGB(18, 29, 232)
+NavStroke.Thickness = 1
+NavStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+NavStroke.Parent = NavBar
+
+local layout = Instance.new("UIListLayout")
+layout.Parent = NavBar
+layout.Padding = UDim.new(0, 10)
+layout.HorizontalAlignment = "Center"
+
+local EnHaut = Instance.new("Frame")
+EnHaut.Name = "EnHaut"
+EnHaut.Size = UDim2.new(1, 0, 0.1, 0)
+EnHaut.BackgroundColor3 = Color3.fromRGB(29, 29, 29)
+EnHaut.Position = UDim2.new(0, 0, 0, -50)
+EnHaut.Parent = Container
+
+local EnHautCorner = Instance.new("UICorner")
+EnHautCorner.Parent = EnHaut
+
+local HautStroke = Instance.new("UIStroke")
+HautStroke.Color = Color3.fromRGB(18, 29, 232)
+HautStroke.Thickness = 1
+HautStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+HautStroke.Parent = EnHaut
+
+local TitleScript = Instance.new("TextLabel")
+TitleScript.Name = "Title"
+TitleScript.Text = "Facility HUB"
+TitleScript.Size = UDim2.new(0, 150, 0, 25)
+TitleScript.TextColor3 = Color3.fromRGB(141, 141, 141)
+TitleScript.BackgroundTransparency = 1
+TitleScript.Font = Enum.Font.SourceSansBold
+TitleScript.TextXAlignment = Enum.TextXAlignment.Left
+TitleScript.TextScaled = true
+TitleScript.Position = UDim2.new(0, 10, 0, 8)
+
+TitleScript.Parent = EnHaut
+
+local function toggleUI()
+	ScreenGui.Enabled = not ScreenGui.Enabled
+end
+
+UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+	if input.UserInputType == Enum.UserInputType.Keyboard and not gameProcessedEvent then
+		if input.KeyCode == Enum.KeyCode.LeftControl or input.KeyCode == Enum.KeyCode.RightControl then
+			toggleUI()
+		end
+	end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.Keyboard then
+		if input.KeyCode == Enum.KeyCode.LeftControl or input.KeyCode == Enum.KeyCode.RightControl then
+		end
+	end
+end)
+
+local dragging = false
+local dragStart = nil
+local startPos = nil
+
+local function updateInput(input)
+	local delta = input.Position - dragStart
+	Container.Position =
+		UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+EnHaut.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = Container.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		updateInput(input)
+	end
+end)
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0.75, 0, 0.8, 0)
+MainFrame.Position = UDim2.new(0, 168, 0, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(29, 29, 29)
+MainFrame.Parent = Container
+
+local MainFrameCorner = Instance.new("UICorner")
+MainFrameCorner.Parent = MainFrame
+
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Color = Color3.fromRGB(18, 29, 232)
+MainStroke.Thickness = 1
+MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+MainStroke.Parent = MainFrame
+
+local Element = Instance.new("Frame")
+Element.Name = "Element"
+Element.Size = UDim2.new(1, 0, 1, 0)
+Element.Position = UDim2.new(0, 0, 0, 0)
+Element.BackgroundColor3 = Color3.fromRGB(29, 29, 29)
+Element.Parent = MainFrame
+
+local ElementCorner = Instance.new("UICorner")
+ElementCorner.Parent = Element
