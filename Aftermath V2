@@ -1,0 +1,563 @@
+local CoreGui = game:GetService("CoreGui")
+local ScreenGui = Instance.new("ScreenGui")
+local UserInputService = game:GetService("UserInputService")
+
+--//Colors
+local UIstrokeTKS = Color3.fromRGB(112, 112, 112) --Exemple Lignes 311
+
+ScreenGui.Parent = CoreGui
+ScreenGui.Name = "Facility"
+
+local Container = Instance.new("Frame")
+Container.Name = "Container"
+Container.Size = UDim2.new(0, 645, 0, 334)
+Container.Position = UDim2.new(0.3, 0, 0.39, 0)
+Container.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Container.BackgroundTransparency = 0
+Container.Parent = ScreenGui
+
+local ContainerCorner = Instance.new("UICorner")
+ContainerCorner.CornerRadius = UDim.new(0, 15)
+ContainerCorner.Parent = Container
+
+local ContStroke = Instance.new("UIStroke")
+ContStroke.Color = Color3.fromRGB(255, 255, 255)
+ContStroke.Thickness = 1
+ContStroke.Transparency = 0.86
+ContStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+ContStroke.Parent = Container
+
+local uiGradient = Instance.new("UIGradient")
+
+local color1 = Color3.fromHex("#222222")
+local color2 = Color3.fromHex("#221822")
+local color3 = Color3.fromHex("#221822")
+local color4 = Color3.fromHex("#ad3aff")
+
+uiGradient.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, color1),
+	ColorSequenceKeypoint.new(0.153, color2),
+	ColorSequenceKeypoint.new(0.389, color3),
+	ColorSequenceKeypoint.new(1, color4),
+})
+
+uiGradient.Rotation = 86
+uiGradient.Offset = Vector2.new(0.2, 0)
+
+uiGradient.Parent = Container
+
+local NavBar = Instance.new("Frame")
+NavBar.Name = "NavBar"
+NavBar.Size = UDim2.new(0, 141, 0, 298)
+NavBar.BackgroundColor3 = Color3.fromRGB(29, 29, 29)
+NavBar.Position = UDim2.new(0.015, 0, 0.091, 0)
+NavBar.Parent = Container
+
+local NavBarCorner = Instance.new("UICorner")
+NavBarCorner.Parent = NavBar
+
+local NavStroke = Instance.new("UIStroke")
+NavStroke.Color = Color3.fromRGB(106, 106, 106)
+NavStroke.Thickness = 1
+NavStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+NavStroke.Parent = NavBar
+
+local layout = Instance.new("UIListLayout")
+layout.Parent = NavBar
+layout.Padding = UDim.new(0, 10)
+layout.HorizontalAlignment = "Center"
+
+local EnHaut = Instance.new("Frame")
+EnHaut.Name = "EnHaut"
+EnHaut.Size = UDim2.new(0, 68, 0, 14)
+EnHaut.BackgroundColor3 = Color3.fromRGB(29, 29, 29)
+EnHaut.Position = UDim2.new(0, 565, 0, 6)
+EnHaut.Parent = Container
+
+local EnHautCorner = Instance.new("UICorner")
+EnHautCorner.CornerRadius = UDim.new(0, 8)
+EnHautCorner.Parent = EnHaut
+
+local HautStroke = Instance.new("UIStroke")
+HautStroke.Color = Color3.fromRGB(76, 76, 76)
+HautStroke.Thickness = 1
+HautStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+HautStroke.Parent = EnHaut
+
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Name = "Title"
+TitleLabel.Text = "Facility"
+TitleLabel.Size = UDim2.new(0, 200, 0, 22)
+TitleLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Font = Enum.Font.SourceSansBold
+TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+TitleLabel.TextScaled = true
+TitleLabel.Position = UDim2.new(0, 10, 0, 3)
+
+TitleLabel.Parent = Container
+
+local toggleKey = Enum.KeyCode.LeftControl
+local isSettingKey = false
+
+local Button = Instance.new("TextButton")
+Button.Name = "SetKey"
+Button.Font = Enum.Font.SourceSansBold
+Button.Position = UDim2.new(0, 0, 0, 0)
+Button.Size = UDim2.new(0, 69, 0, 13)
+Button.Text = "CTRL"
+Button.BackgroundTransparency = 1
+Button.TextColor3 = Color3.fromRGB(150, 150, 150)
+Button.TextScaled = true
+Button.Parent = EnHaut
+
+local function toggleUI()
+	Container.Visible = not Container.Visible
+end
+
+local function onKeyPress(input)
+	if isSettingKey and input.UserInputType == Enum.UserInputType.Keyboard then
+		toggleKey = input.KeyCode
+		isSettingKey = false
+		Button.Text = "" .. input.KeyCode.Name
+	elseif not isSettingKey and toggleKey and input.KeyCode == toggleKey then
+		toggleUI()
+	end
+end
+
+Button.MouseButton1Click:Connect(function()
+	isSettingKey = true
+	Button.Text = "Press a key..."
+end)
+
+UserInputService.InputBegan:Connect(onKeyPress)
+
+local dragging = false
+local dragStart = nil
+local startPos = nil
+
+local function updateInput(input)
+	local delta = input.Position - dragStart
+	Container.Position =
+		UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+Container.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = Container.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		updateInput(input)
+	end
+end)
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 476, 0, 298)
+MainFrame.Position = UDim2.new(0.249, 0, 0.091, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(29, 29, 29)
+MainFrame.Parent = Container
+
+local MainFrameCorner = Instance.new("UICorner")
+MainFrameCorner.Parent = MainFrame
+
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Color = Color3.fromRGB(106, 106, 106)
+MainStroke.Thickness = 1.5
+MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+MainStroke.Parent = MainFrame
+
+local Element = Instance.new("Frame")
+Element.Name = "Element"
+Element.Size = UDim2.new(1, 0, 1, 0)
+Element.Position = UDim2.new(0, 0, 0, 0)
+Element.BackgroundColor3 = Color3.fromRGB(26, 26, 26)
+Element.Parent = MainFrame
+
+local ElementCorner = Instance.new("UICorner")
+ElementCorner.Parent = Element
+
+function CreateTab(title)
+	local ButtonContainer = Instance.new("Frame")
+	ButtonContainer.Name = title
+	ButtonContainer.Size = UDim2.new(0, 125, 0, 30)
+	ButtonContainer.BackgroundColor3 = Color3.fromRGB(29, 29, 29)
+	ButtonContainer.BackgroundTransparency = 1
+	ButtonContainer.Position = UDim2.new(0.05 + (#NavBar:GetChildren() - 1) * 0.22, 0, 0.1, 0)
+	ButtonContainer.Parent = NavBar
+
+	local ContainerCorner = Instance.new("UICorner")
+	ContainerCorner.Parent = ButtonContainer
+
+	local Button = Instance.new("TextButton")
+	Button.Size = UDim2.new(1, 0, 0, 35)
+	Button.Position = UDim2.new(0, 0, 0, 10)
+	Button.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+	Button.TextColor3 = Color3.fromRGB(150, 150, 150)
+	Button.Font = Enum.Font.SourceSansBold
+	Button.TextSize = 16
+	Button.Text = title
+	Button.Parent = ButtonContainer
+
+	local ButtonCorner = Instance.new("UICorner")
+	ButtonCorner.Parent = Button
+
+	local ButtonStroke = Instance.new("UIStroke")
+	ButtonStroke.Color = Color3.fromRGB(106, 106, 106)
+	ButtonStroke.Thickness = 1
+	ButtonStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	ButtonStroke.Parent = Button
+
+	Button.MouseButton1Click:Connect(function()
+		for _, child in ipairs(Element:GetChildren()) do
+			if child:IsA("ScrollingFrame") then
+				child.Visible = false
+			end
+		end
+
+		local correspondingFrame = Element:FindFirstChild(title)
+		if correspondingFrame then
+			correspondingFrame.Visible = true
+		end
+	end)
+
+	local TabFrame = Instance.new("ScrollingFrame")
+	TabFrame.Name = title
+	TabFrame.Size = UDim2.new(0.95, 0, 0.95, 0)
+	TabFrame.Position = UDim2.new(0.025, 0, 0.025, 0)
+	TabFrame.BackgroundTransparency = 1
+	TabFrame.BackgroundColor3 = Color3.fromRGB(29, 29, 29)
+	TabFrame.Visible = false
+	TabFrame.Parent = Element
+
+	TabFrame.ScrollBarThickness = 10
+	TabFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+	TabFrame.ScrollingDirection = Enum.ScrollingDirection.Y
+	TabFrame.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+
+	local TabFrameCorner = Instance.new("UICorner")
+	TabFrameCorner.Parent = TabFrame
+
+	local uiPadding = Instance.new("UIPadding")
+	uiPadding.PaddingTop = UDim.new(0, 10)
+	uiPadding.PaddingLeft = UDim.new(0, 10)
+	uiPadding.PaddingRight = UDim.new(0, 10)
+	uiPadding.PaddingBottom = UDim.new(0, 10)
+	uiPadding.Parent = TabFrame
+
+	local listLayout = Instance.new("UIListLayout")
+	listLayout.Parent = TabFrame
+	listLayout.FillDirection = Enum.FillDirection.Vertical
+	listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	listLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+	listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	listLayout.Padding = UDim.new(0, 10)
+
+	return {
+		ButtonContainer = ButtonContainer,
+		TabFrame = TabFrame,
+		CreateToggle = function(toggleOptions)
+			local ToggleFrame = Instance.new("Frame")
+			ToggleFrame.Name = "Toggle"
+			ToggleFrame.Position = UDim2.new(0, 2, 0, 5)
+			ToggleFrame.Size = UDim2.new(0.99, 0, 0, 40)
+			ToggleFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+			ToggleFrame.Transparency = 1
+			ToggleFrame.Parent = TabFrame
+
+			local ToggleCorner = Instance.new("UICorner")
+			ToggleCorner.Parent = ToggleFrame
+
+			local ButtonStroke = Instance.new("UIStroke")
+			ButtonStroke.Color = Color3.fromRGB(53, 53, 53)
+			ButtonStroke.Thickness = 1.5
+			ButtonStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+			ButtonStroke.Parent = ToggleFrame
+
+			local ToggleLabel = Instance.new("TextLabel")
+			ToggleLabel.Size = UDim2.new(0, 160, 0, 19)
+			ToggleLabel.Position = UDim2.new(0, 10, 0, 10)
+			ToggleLabel.TextSize = 14
+			ToggleLabel.Font = Enum.Font.SourceSansBold
+			ToggleLabel.TextXAlignment = Enum.TextXAlignment.Left
+			ToggleLabel.BackgroundTransparency = 1
+			ToggleLabel.TextColor3 = Color3.fromRGB(132, 132, 132)
+			ToggleLabel.TextScaled = true
+			ToggleLabel.Text = toggleOptions.Name
+			ToggleLabel.Parent = ToggleFrame
+
+			local Switch = Instance.new("Frame")
+			Switch.Name = "Switch"
+			Switch.Size = UDim2.new(0, 45, 0, 19)
+			Switch.Position = UDim2.new(0.88, 0, 0, 10)
+			Switch.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+			Switch.Parent = ToggleFrame
+
+			local SwitchCorner = Instance.new("UICorner")
+			SwitchCorner.Parent = Switch
+
+			local SwitchStroke = Instance.new("UIStroke")
+			SwitchStroke.Color = UIstrokeTKS
+			SwitchStroke.Parent = Switch
+
+			local Indicator = Instance.new("Frame")
+			Indicator.Name = "Indicator"
+			Indicator.Size = UDim2.new(0, 14, 0, 14)
+			Indicator.Position = UDim2.new(0.07, 0, 0.1, 0)
+			Indicator.BackgroundColor3 = Color3.fromRGB(34, 34, 34)
+			Indicator.Parent = Switch
+
+			local IndicatorCorner = Instance.new("UICorner")
+			IndicatorCorner.Parent = Indicator
+
+			local IndicatorStroke = Instance.new("UIStroke")
+			IndicatorStroke.Parent = Indicator
+
+			local ToggleButton = Instance.new("TextButton")
+			ToggleButton.Size = UDim2.new(4, 0, 1.1, 0)
+			ToggleButton.Position = UDim2.new(0, -120, 0, 0)
+			ToggleButton.BackgroundTransparency = 1
+			ToggleButton.Text = ""
+			ToggleButton.Parent = Switch
+
+			ToggleButton.MouseButton1Click:Connect(function()
+				local newValue = not toggleOptions.CurrentValue
+				toggleOptions.CurrentValue = newValue
+				if newValue then
+					Indicator:TweenPosition(UDim2.new(0.6, 0, 0.1, 0), "Out", "Quad", 0.2)
+					Indicator.BackgroundColor3 = Color3.fromRGB(152, 21, 188)
+				else
+					Indicator:TweenPosition(UDim2.new(0.07, 0, 0.1, 0), "Out", "Quad", 0.2)
+					Indicator.BackgroundColor3 = Color3.fromRGB(34, 34, 34)
+				end
+				toggleOptions.Callback(newValue)
+			end)
+		end,
+
+		CreateSlider = function(sliderOptions)
+			local SliderFrame = Instance.new("Frame")
+			SliderFrame.Name = sliderOptions.Name
+			SliderFrame.Position = UDim2.new(0, 2, 0, 5)
+			SliderFrame.Size = UDim2.new(0.99, 0, 0, 40)
+			SliderFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+			SliderFrame.Transparency = 1
+			SliderFrame.Parent = TabFrame
+
+			local SliderFrameCorner = Instance.new("UICorner")
+			SliderFrameCorner.Parent = SliderFrame
+
+			local SliderStroke = Instance.new("UIStroke")
+			SliderStroke.Color = Color3.fromRGB(53, 53, 53)
+			SliderStroke.Thickness = 1.5
+			SliderStroke.Parent = SliderFrame
+
+			local SliderLabel = Instance.new("TextLabel")
+			SliderLabel.Size = UDim2.new(0, 385, 0, 18)
+			SliderLabel.Position = UDim2.new(0, 10, 0, 10)
+			SliderLabel.TextSize = 14
+			SliderLabel.Font = Enum.Font.SourceSansBold
+			SliderLabel.TextXAlignment = Enum.TextXAlignment.Left
+			SliderLabel.BackgroundTransparency = 1
+			SliderLabel.TextColor3 = Color3.fromRGB(132, 132, 132)
+			SliderLabel.TextScaled = true
+			SliderLabel.Text = sliderOptions.Name
+			SliderLabel.Parent = SliderFrame
+
+			local SliderValueLabel = Instance.new("TextLabel")
+			SliderValueLabel.Size = UDim2.new(0, 50, 0, 20)
+			SliderValueLabel.Position = UDim2.new(0, 190, 0, 10)
+			SliderValueLabel.Text = tostring(sliderOptions.CurrentValue)
+			SliderValueLabel.Font = Enum.Font.SourceSansBold
+			SliderValueLabel.TextColor3 = Color3.fromRGB(132, 132, 132)
+			SliderValueLabel.TextSize = 12
+			SliderValueLabel.TextScaled = true
+			SliderValueLabel.BackgroundTransparency = 1
+			SliderValueLabel.Parent = SliderFrame
+
+			local SliderBar = Instance.new("Frame")
+			SliderBar.Name = "Fond"
+			SliderBar.Size = UDim2.new(0, 180, 0, 19)
+			SliderBar.Position = UDim2.new(0, 240, 0, 10)
+			SliderBar.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+			SliderBar.Parent = SliderFrame
+
+			local SliderCorner = Instance.new("UICorner")
+			SliderCorner.CornerRadius = UDim.new(0, 10)
+			SliderCorner.Parent = SliderBar
+
+			local StokerSlider = Instance.new("UIStroke")
+			StokerSlider.Color = Color3.fromRGB(112, 112, 112)
+			StokerSlider.Thickness = 1
+			StokerSlider.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+			StokerSlider.Parent = SliderBar
+
+			local FillFrame = Instance.new("Frame")
+			FillFrame.Name = "Fill"
+			FillFrame.BackgroundColor3 = Color3.fromRGB(145, 21, 176)
+			FillFrame.Position = UDim2.new(0, 0, 0, 0)
+			FillFrame.Size = UDim2.new(0, 0, 1, 0)
+			FillFrame.Parent = SliderBar
+
+			local FillCorner = Instance.new("UICorner")
+			FillCorner.CornerRadius = UDim.new(0, 10)
+			FillCorner.Parent = FillFrame
+
+			local FillStokerSlider = Instance.new("UIStroke")
+			FillStokerSlider.Color = Color3.fromRGB(112, 112, 112)
+			FillStokerSlider.Thickness = 1
+			FillStokerSlider.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+			FillStokerSlider.Parent = FillFrame
+
+			local SliderButton = Instance.new("TextButton")
+			SliderButton.Name = "SliderButton"
+			SliderButton.Size = UDim2.new(1.2, 0, 2, 0)
+			SliderButton.Position = UDim2.new(-0.1, 0, -0.5, 0)
+			SliderButton.BackgroundTransparency = 1
+			SliderButton.Text = ""
+			SliderButton.Parent = SliderBar
+
+			local dragging = false
+
+			SliderButton.MouseButton1Down:Connect(function()
+				dragging = true
+			end)
+
+			UserInputService.InputEnded:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.MouseButton1 then
+					dragging = false
+				end
+			end)
+
+			SliderButton.MouseMoved:Connect(function(x, y)
+				if dragging then
+					local mousePosition = x
+					local sliderPosition = SliderBar.AbsolutePosition.X
+					local sliderSize = SliderBar.AbsoluteSize.X
+
+					local newValue = math.clamp((mousePosition - sliderPosition) / sliderSize, 0, 1)
+					local sliderValue = math.floor(
+						newValue * (sliderOptions.Range[2] - sliderOptions.Range[1]) / sliderOptions.Increment
+					) * sliderOptions.Increment + sliderOptions.Range[1]
+					sliderOptions.CurrentValue = sliderValue
+
+					SliderValueLabel.Text = tostring(sliderValue)
+
+					FillFrame.Size = UDim2.new(newValue, 0, 1, 0)
+
+					if sliderOptions.Callback then
+						sliderOptions.Callback(sliderValue)
+					end
+				end
+			end)
+
+			SliderButton.MouseButton1Click:Connect(function()
+				local mousePosition = UserInputService:GetMouseLocation().X
+				local sliderPosition = SliderBar.AbsolutePosition.X
+				local sliderSize = SliderBar.AbsoluteSize.X
+
+				local newValue = math.clamp((mousePosition - sliderPosition) / sliderSize, 0, 1)
+				local sliderValue = math.floor(
+					newValue * (sliderOptions.Range[2] - sliderOptions.Range[1]) / sliderOptions.Increment
+				) * sliderOptions.Increment + sliderOptions.Range[1]
+				sliderOptions.CurrentValue = sliderValue
+
+				SliderValueLabel.Text = tostring(sliderValue)
+
+				FillFrame.Size = UDim2.new(newValue, 0, 1, 0)
+
+				if sliderOptions.Callback then
+					sliderOptions.Callback(sliderValue)
+				end
+			end)
+		end,
+
+		CreateKeybind = function(keybindOptions)
+			local KeybindFrame = Instance.new("Frame")
+			KeybindFrame.Name = keybindOptions.Name
+			KeybindFrame.Position = UDim2.new(0, 2, 0, 5)
+			KeybindFrame.Size = UDim2.new(0.99, 0, 0, 40)
+			KeybindFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+			KeybindFrame.Transparency = 1
+			KeybindFrame.Parent = TabFrame
+
+			local KeybindCorner = Instance.new("UICorner")
+			KeybindCorner.Parent = KeybindFrame
+
+			local KeybindStroke = Instance.new("UIStroke")
+			KeybindStroke.Color = Color3.fromRGB(53, 53, 53)
+			KeybindStroke.Thickness = 1.5
+			KeybindStroke.Parent = KeybindFrame
+
+			local KeybindLabel = Instance.new("TextLabel")
+			KeybindLabel.Size = UDim2.new(0, 385, 0, 18)
+			KeybindLabel.Position = UDim2.new(0, 10, 0, 10)
+			KeybindLabel.TextSize = 14
+			KeybindLabel.TextXAlignment = Enum.TextXAlignment.Left
+			KeybindLabel.Font = Enum.Font.SourceSansBold
+			KeybindLabel.BackgroundTransparency = 1
+			KeybindLabel.TextColor3 = Color3.fromRGB(132, 132, 132)
+			KeybindLabel.TextScaled = true
+			KeybindLabel.Text = keybindOptions.Name
+			KeybindLabel.Parent = KeybindFrame
+
+			local KeybindButton = Instance.new("TextButton")
+			KeybindButton.Name = "Keybinds"
+			KeybindButton.Size = UDim2.new(0, 66, 0, 21)
+			KeybindButton.Position = UDim2.new(0.82, 0, 0.25, 0)
+			KeybindButton.BackgroundColor3 = Color3.fromRGB(29, 29, 29)
+			KeybindButton.TextColor3 = Color3.fromRGB(132, 132, 132)
+			KeybindButton.Text = "Set"
+			KeybindButton.Parent = KeybindFrame
+
+			local ButtonKeyCorner = Instance.new("UICorner")
+			ButtonKeyCorner.CornerRadius = UDim.new(0, 10)
+			ButtonKeyCorner.Parent = KeybindButton
+
+			local StokerKeybinds = Instance.new("UIStroke")
+			StokerKeybinds.Color = Color3.fromRGB(112, 112, 112)
+			StokerKeybinds.Thickness = 1
+			StokerKeybinds.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+			StokerKeybinds.Parent = KeybindButton
+
+			KeybindButton.MouseButton1Click:Connect(function()
+				KeybindButton.Text = "Press Key"
+				local connection
+				connection = UserInputService.InputBegan:Connect(function(input)
+					if input.UserInputType == Enum.UserInputType.Keyboard then
+						local newKey = input.KeyCode.Name
+						keybindOptions.CurrentKeybind = newKey
+						KeybindButton.Text = newKey
+						connection:Disconnect()
+					end
+				end)
+			end)
+
+			UserInputService.InputBegan:Connect(function(input)
+				if input.KeyCode.Name == keybindOptions.CurrentKeybind then
+					if keybindOptions.HoldToInteract then
+						keybindOptions.Callback(true)
+					else
+						keybindOptions.Callback(false)
+					end
+				end
+			end)
+
+			UserInputService.InputEnded:Connect(function(input)
+				if input.KeyCode.Name == keybindOptions.CurrentKeybind and keybindOptions.HoldToInteract then
+					keybindOptions.Callback(false)
+				end
+			end)
+		end,
+	}
+end
