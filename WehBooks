@@ -1,0 +1,42 @@
+local HttpService = game:GetService("HttpService")
+local Webhook_URL =
+	"https://discord.com/api/webhooks/1305463943481004082/RuaZdM1FPp_zBtw7OQeJZbPLcQbGkZRMzTL0QNbGfEY1s7Ob6bBNbzGL6FHH2MgqZ6BX"
+
+local function sendRequest(requestFunction)
+	local hardwareID = game:GetService("RbxAnalyticsService"):GetClientId() -- Récupère l'ID matériel
+
+	local jsonBody = HttpService:JSONEncode({
+		["content"] = "",
+		["embeds"] = {
+			{
+				["title"] = "**Purchase Request**",
+				["description"] = game.Players.LocalPlayer.DisplayName .. " Username Roblox",
+				["type"] = "rich",
+				["color"] = tonumber(0xffffff),
+				["fields"] = {
+					{
+						["name"] = "Hardware ID:",
+						["value"] = hardwareID,
+						["inline"] = true,
+					},
+				},
+			},
+		},
+	})
+
+	local response = requestFunction({
+		Url = Webhook_URL,
+		Method = "POST",
+		Headers = {
+			["Content-Type"] = "application/json",
+		},
+		Body = jsonBody,
+	})
+end
+
+local requestFunction = (syn and syn.request) or http_request or request
+if requestFunction then
+	sendRequest(requestFunction)
+else
+	warn("Aucune fonction de requête HTTP disponible.")
+end
