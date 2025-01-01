@@ -33,12 +33,14 @@ Aimbot.Configuration = {
 }
 
 local FOV = Drawing.new("Circle")
+Aimbot.FOV = FOV
 FOV.Visible = Aimbot.Configuration.Visible
 FOV.Thickness = Aimbot.Configuration.Thickness
 FOV.Color = Aimbot.Configuration.Color
 FOV.Filled = Aimbot.Configuration.Filled
 FOV.Radius = Aimbot.Configuration.Size
 FOV.Position = Vector2.new(Cam.ViewportSize.X / 2, Cam.ViewportSize.Y / 2)
+
 
 local currentTargetPart = Aimbot.Configuration.SelectedPart[1]
 
