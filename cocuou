@@ -1,9 +1,6 @@
 local MacLib = { 
 	Options = {}, 
 	Folder = "Maclib", 
-	GetService = function(service)
-		return cloneref and cloneref(game:GetService(service)) or game:GetService(service)
-	end
 }
 
 --// Services
@@ -57,7 +54,6 @@ local function GetGui()
 	newGui.Parent = parent
 	return newGui
 end
-
 
 --// Library Functions
 function MacLib:Window(Settings)
